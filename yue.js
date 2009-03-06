@@ -1,3 +1,7 @@
+// -----------------------------------------------------------------
+// Yue Note COMMANDS
+// -----------------------------------------------------------------
+
 var yue_host = "http://yue.yimudi.org";
 var yue_preview = {
     status: '',
@@ -54,7 +58,7 @@ CmdUtils.CreateCommand({
         "tag1, tag2, ...|note": noun_arb_text
     },
     
-    preview: function(pblock){
+    preview: function(pblock, input){
         var doc = CmdUtils.getDocument();
         var doc_url = doc.location.href;
         
@@ -81,8 +85,19 @@ CmdUtils.CreateCommand({
             });
         }
         
-        var selection_html = CmdUtils.getHtmlSelection();
-        var selection = CmdUtils.getSelection();
+        var selection_html = '';
+        var selection = '';
+        var re = '';
+        if (input.selection_html) {
+            selection_html = input.selection_html;
+            selection = selection_html.replace(/<[^>]*>/g, '');
+            re = 'y ' + input.text;
+        } else {
+            selection_html = CmdUtils.getHtmlSelection();
+            selection = CmdUtils.getSelection();
+            re = Utils.currentChromeWindow.gUbiquity.__textBox.value;
+        }
+
         var sel = 'No selection';
         if (selection_html != null) {
             sel = selection_html;
@@ -91,7 +106,6 @@ CmdUtils.CreateCommand({
             }
         }
         
-        var re = context.chromeWindow.gUbiquity.__textBox.value;
         var split_input = yue_split_input(re);
         var tag = split_input[0];
         var note = split_input[1];
@@ -113,7 +127,7 @@ CmdUtils.CreateCommand({
         "</div>";
         pblock.innerHTML = output;
     },
-    execute: function(){
+    execute: function(input){
         var doc = CmdUtils.getDocument();
         var doc_url = doc.location.href;
         var postData = {
@@ -124,12 +138,21 @@ CmdUtils.CreateCommand({
             url: doc_url,
             title: doc.title
         };
-        var selection_html = CmdUtils.getHtmlSelection();
+
+        var selection_html = '';
+        var re = '';
+        if (input.selection_html) {
+            selection_html = input.selection_html;
+            re = 'y ' + input.text;
+        } else {
+            selection_html = CmdUtils.getHtmlSelection();
+            re = Utils.currentChromeWindow.gUbiquity.__textBox.value;
+        }
+
         if (selection_html != null) {
             postData.sel = selection_html;
         }
         
-        var re = context.chromeWindow.gUbiquity.__textBox.value;
         var split_input = yue_split_input(re);
         postData.tag = split_input[0];
         postData.note = split_input[1];
